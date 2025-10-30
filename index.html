@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RaklapCalculator</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0000, #CEBE9F);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #D12229;
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 500;
+            color: #333;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 0.4rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        button {
+            margin-top: 1.5rem;
+            background-color: #D12229;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #961114;
+        }
+        #result {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            color: black;
+            font-weight: 500;
+        }
+        #finalResult {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            color: #D12229;
+            font-weight: 700;
+            text-decoration: underline
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="mastergood.png" alt=""
+         width="300">
+    <h1>Raklap Kalkulátor</h1>
+
+    <label for="total_quantity">Kihozatal (t):</label>
+    <input type="number" min="1" max="100" value="1" id="total_quantity"/>
+
+    <label for="package_weight">Tasak átlagsúly (kg):</label>
+    <input type="number" min="0.3" max="100" value="1" step="0.1" id="package_weight"/>
+
+    <label for="package_cartoon">Tasak/karton:</label>
+    <input type="number" min="1" max="100" value="1" id="package_cartoon"/>
+
+    <label for="cartoon_row">Karton/sor:</label>
+    <input type="number" min="1" max="100" value="1" id="cartoon_row"/>
+
+    <button id="calculate">Számítás</button>
+
+    <div id="result"></div>
+    <div id="finalResult"></div>
+</div>
+
+<script>
+
+
+    const resultDiv = document.getElementById('result')
+    document.getElementById('calculate').addEventListener('click', function() {
+        const total_quantity = parseFloat(document.getElementById('total_quantity').value);
+        const package_weight = parseFloat(document.getElementById('package_weight').value);
+        const package_cartoon = parseFloat(document.getElementById('package_cartoon').value);
+        const cartoon_row = parseFloat(document.getElementById('cartoon_row').value);
+
+        resultDiv.innerText = ""
+        const pallet_capacity = package_cartoon * cartoon_row;
+
+        const cartoon_weight = package_weight * package_cartoon;
+        resultDiv.innerText = resultDiv.innerText.concat("1 karon = " + cartoon_weight.toFixed(1) +" kg")
+        resultDiv.innerText = resultDiv.innerText.concat("\n1 raklap = " +pallet_capacity +" karton")
+        const pallet_weight = pallet_capacity * cartoon_weight;
+        resultDiv.innerText = resultDiv.innerText.concat("\n1 raklap = " +pallet_weight +" kg")
+
+        const pallet_demand = (total_quantity * 1000) / pallet_weight;
+        resultDiv.innerText = resultDiv.innerText.concat("\nÖsszesen " + pallet_demand.toFixed(2) +" raklapra van szükség")
+        const whole_pallet_total_weight = Math.floor(pallet_demand) * pallet_weight;
+        const last_pallet_weight = (total_quantity * 1000) - whole_pallet_total_weight;
+
+        document.getElementById('finalResult').innerText = Math.floor(pallet_demand) + " raklap + " +
+            Math.ceil(last_pallet_weight / cartoon_weight) + " karton az utolsó raklapon"
+    });
+</script>
+
+</body>
+</html>
