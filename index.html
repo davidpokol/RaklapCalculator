@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=500, initial-scale=1.8" />
     <title>RaklapCalculator</title>
-
     <style>
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -20,8 +20,14 @@
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             text-align: center;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
         }
         h1 {
             color: #D12229;
@@ -29,20 +35,22 @@
         }
         label {
             display: block;
-            margin-top: 1rem;
+            padding-top: 1rem;
+            padding-left: 1rem;
+            padding-right: 0.2rem;
             font-weight: 500;
             color: #333;
         }
         input[type="number"] {
-            width: 100%;
             padding: 0.6rem;
+            width: 5rem;
             border: 1px solid #ccc;
             border-radius: 8px;
             margin-top: 0.4rem;
             font-size: 1rem;
             text-align: center;
         }
-        button {
+        input[type="submit"] {
             margin-top: 1.5rem;
             background-color: #D12229;
             color: white;
@@ -53,7 +61,7 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        button:hover {
+        input[type="submit"]:hover {
             background-color: #961114;
         }
         #result {
@@ -69,59 +77,101 @@
             font-weight: 700;
             text-decoration: underline
         }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+        }
+
+        input[type=number] {
+            -moz-appearance:textfield; /* Firefox */
+        }
+
+        #footer {
+            margin-right:1rem;
+            color: white;
+            font-style: italic;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="mastergood.png" alt=""
-         width="300">
-    <h1>Raklap Kalkulátor</h1>
 
-    <label for="total_quantity">Kihozatal (t):</label>
-    <input type="number" min="1" max="100" value="1" id="total_quantity"/>
+    <form id="calculator">
+        <img src="mastergood.png" alt="master-good-logo" width="50%">
+        <h1>Raklap Kalkulátor</h1>
 
-    <label for="package_weight">Tasak átlagsúly (kg):</label>
-    <input type="number" min="0.3" max="100" value="1" step="0.1" id="package_weight"/>
+        <div class="flex-container">
+            <label for="total_quantity">Kihozatal (t): </label>
+            <input type="number" min="1" max="100" step="0.001" id="total_quantity" required/>
+        </div>
+        <div class="flex-container space-evenly">
+            <label for="package_weight">Tasak átlagsúly (kg): </label>
+            <input type="number" min="0.3" max="2.5"  step="0.001" id="package_weight" required/>
 
-    <label for="package_cartoon">Tasak/karton:</label>
-    <input type="number" min="1" max="100" value="1" id="package_cartoon"/>
+            <label for="package_cartoon">Tasak/karton: </label>
+            <input type="number" min="1" max="20" id="package_cartoon" required/>
 
-    <label for="cartoon_row">Karton/sor:</label>
-    <input type="number" min="1" max="100" value="1" id="cartoon_row"/>
+        </div>
+        <div class="flex-container space-evenly">
+            <label for="cartoon_row">Karton/sor: </label>
+            <input type="number" min="1" max="16" id="cartoon_row" required/>
 
-    <button id="calculate">Számítás</button>
+            <label for="row_pallet">Sor/raklap: </label>
+            <input type="number" min="1" max="15" id="row_pallet" required/>
+        </div>
+        <input type="submit" id="calculate" value="Számítás"/>
+    </form>
 
     <div id="result"></div>
     <div id="finalResult"></div>
 </div>
 
+<div id="footer">
+    <p>Speciálisan Gyurikának és Máriónak</p>
+</div>
+
+
+
 <script>
-
-
     const resultDiv = document.getElementById('result')
-    document.getElementById('calculate').addEventListener('click', function() {
+    document.getElementById('calculator').addEventListener('submit', function(event) {
+        event.preventDefault()
+
         const total_quantity = parseFloat(document.getElementById('total_quantity').value);
         const package_weight = parseFloat(document.getElementById('package_weight').value);
         const package_cartoon = parseFloat(document.getElementById('package_cartoon').value);
         const cartoon_row = parseFloat(document.getElementById('cartoon_row').value);
+        const row_pallet = parseFloat(document.getElementById('row_pallet').value);
 
         resultDiv.innerText = ""
-        const pallet_capacity = package_cartoon * cartoon_row;
+        const pallet_capacity = cartoon_row * row_pallet ;
 
         const cartoon_weight = package_weight * package_cartoon;
         resultDiv.innerText = resultDiv.innerText.concat("1 karon = " + cartoon_weight.toFixed(1) +" kg")
         resultDiv.innerText = resultDiv.innerText.concat("\n1 raklap = " +pallet_capacity +" karton")
         const pallet_weight = pallet_capacity * cartoon_weight;
-        resultDiv.innerText = resultDiv.innerText.concat("\n1 raklap = " +pallet_weight +" kg")
+        resultDiv.innerText = resultDiv.innerText.concat("\n1 raklap = " +pallet_weight.toFixed(1) +" kg")
 
         const pallet_demand = (total_quantity * 1000) / pallet_weight;
-        resultDiv.innerText = resultDiv.innerText.concat("\nÖsszesen " + pallet_demand.toFixed(2) +" raklapra van szükség")
+        resultDiv.innerText = resultDiv.innerText.concat("\nRaklapok száma: " + pallet_demand.toFixed(2))
         const whole_pallet_total_weight = Math.floor(pallet_demand) * pallet_weight;
         const last_pallet_weight = (total_quantity * 1000) - whole_pallet_total_weight;
 
-        document.getElementById('finalResult').innerText = Math.floor(pallet_demand) + " raklap + " +
-            Math.ceil(last_pallet_weight / cartoon_weight) + " karton az utolsó raklapon"
+        document.getElementById('finalResult').innerText = + Math.floor(pallet_demand) + " raklap"
+
+
+        if (!pallet_demand%1===0)
+            document.getElementById('finalResult').innerText = document.getElementById('finalResult').innerText.concat(
+                " + " + Math.ceil(last_pallet_weight / cartoon_weight) + " karton az utolsó raklapon"
+            )
+
     });
 </script>
 
